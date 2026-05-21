@@ -1,336 +1,318 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notepad Online</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Share-Notes</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, sans-serif; }
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+  body {
+    margin: 0;
+    background: #f3f3f3;
+    color: #111;
+  }
 
-    body {
-      margin: 0;
-      background: #f4f6f8;
-      color: #111;
-    }
+  header {
+    background: #000;
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
 
-    header {
-      background: #2563eb;
-      color: white;
-      padding: 18px;
-      text-align: center;
-    }
+  header .logo {
+    background: white;
+    color: black;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 20px;
+    font-weight: bold;
+  }
 
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+  header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    border-bottom: 1px solid #ddd;
+    background: #f3f3f3;
+    padding: 14px 10px 0;
+    flex-wrap: wrap;
+  }
 
-    textarea {
-      width: 100%;
-      height: 380px;
-      padding: 15px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      resize: vertical;
-    }
+  .tab {
+    background: none;
+    border: none;
+    padding: 10px 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #777;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    letter-spacing: 1px;
+  }
 
-    .buttons {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+  .tab.active {
+    color: #111;
+    border-color: #111;
+  }
 
-    button {
-      padding: 11px 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: bold;
-    }
+  .container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
 
-    .save {
-      background: #16a34a;
-      color: white;
-    }
+  .editor {
+    width: 100%;
+    min-height: 230px;
+    padding: 18px;
+    font-size: 16px;
+    background: #f3f3f3;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    resize: vertical;
+    outline: none;
+  }
 
-    .clear {
-      background: #dc2626;
-      color: white;
-    }
+  .share-area {
+    text-align: center;
+    margin-top: 30px;
+  }
 
-    .download {
-      background: #2563eb;
-      color: white;
-    }
+  .share-btn {
+    background: #000;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 30px;
+    font-size: 15px;
+    cursor: pointer;
+  }
 
-    .share {
-      background: #9333ea;
-      color: white;
-    }
+  .share-btn:hover { background: #222; }
 
-    .status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #555;
-    }
+  .status {
+    color: #c1224f;
+    margin-top: 14px;
+    font-size: 14px;
+    min-height: 20px;
+  }
 
-    /* Modal overlay */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 999;
+  }
 
-    /* Modal box */
-    .modal {
-      background: white;
-      width: 100%;
-      max-width: 460px;
-      border-radius: 6px;
-      padding: 28px 32px;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
-      animation: popup 0.2s ease;
-    }
+  .modal {
+    background: white;
+    width: 100%;
+    max-width: 430px;
+    border-radius: 6px;
+    padding: 26px 30px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  }
 
-    @keyframes popup {
-      from {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.97);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+  .modal h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+  }
 
-    .modal h2 {
-      margin: 0 0 12px;
-      font-size: 24px;
-    }
+  .modal p {
+    margin: 0 0 6px;
+    color: #444;
+  }
 
-    .modal p {
-      margin: 0 0 10px;
-      color: #444;
-      font-size: 16px;
-    }
+  .shared-url {
+    color: #1a73e8;
+    word-break: break-all;
+    margin-bottom: 22px;
+    font-size: 15px;
+  }
 
-    .shared-url {
-      color: #1a73e8;
-      word-break: break-all;
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
+  .modal-buttons {
+    display: flex;
+    gap: 14px;
+  }
 
-    .modal-buttons {
-      display: flex;
-      gap: 16px;
-      margin-top: 18px;
-    }
+  .modal-buttons button {
+    flex: 1;
+    padding: 11px 0;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
 
-    .copy-btn {
-      flex: 1;
-      background: #a323c5;
-      color: white;
-    }
+  .copy-btn  { background: #a323c5; }
+  .open-btn  { background: #2e7d32; }
+  .close-x {
+    background: none;
+    border: none;
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+  }
 
-    .open-btn {
-      flex: 1;
-      background: #2e7d32;
-      color: white;
-    }
-
-    .close-modal {
-      margin-top: 15px;
-      width: 100%;
-      background: #e5e7eb;
-      color: #111;
-    }
-
-    @media (max-width: 500px) {
-      .modal {
-        padding: 24px 20px;
-      }
-
-      .modal-buttons {
-        flex-direction: column;
-      }
-    }
-  </style>
+  @media (max-width: 500px) {
+    header h1 { font-size: 22px; }
+    .modal-buttons { flex-direction: column; }
+  }
+</style>
 </head>
+
 <body>
 
-  <header>
-    <h1>Notepad Online</h1>
-  </header>
+<header>
+  <div class="logo">📝</div>
+  <h1>Share-Notes</h1>
+</header>
 
-  <div class="container">
-    <input type="text" id="title" placeholder="Judul catatan..." />
+<div class="tabs">
+  <button class="tab active" data-mode="notes">SHARE NOTES</button>
+  <button class="tab" data-mode="image">SHARE IMAGE</button>
+  <button class="tab" data-mode="code">SHARE CODE</button>
+  <button class="tab" data-mode="html">SHARE HTML</button>
+</div>
 
-    <textarea id="note" placeholder="Tulis catatan kamu di sini..."></textarea>
+<div class="container">
+  <textarea id="editor" class="editor" placeholder="Write your note here..."></textarea>
 
-    <div class="buttons">
-      <button class="save" onclick="saveNote()">Simpan</button>
-      <button class="clear" onclick="clearNote()">Hapus</button>
-      <button class="download" onclick="downloadNote()">Download TXT</button>
-      <button class="share" onclick="shareNote()">Share</button>
-    </div>
-
-    <div class="status" id="status">Catatan akan tersimpan otomatis di browser.</div>
+  <div class="share-area">
+    <button class="share-btn" onclick="shareContent()">Share Content</button>
+    <div class="status" id="status"></div>
   </div>
+</div>
 
-  <!-- Modal Share -->
-  <div class="modal-overlay" id="shareModal">
-    <div class="modal">
-      <h2>Content Shared Successfully!</h2>
-      <p>Your content URL:</p>
+<!-- Modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal()">×</button>
+    <h2>Content Shared Successfully!</h2>
+    <p>Your content URL:</p>
+    <div class="shared-url" id="sharedUrl"></div>
 
-      <div class="shared-url" id="sharedUrl"></div>
-
-      <div class="modal-buttons">
-        <button class="copy-btn" onclick="copyShareUrl()">COPY URL</button>
-        <button class="open-btn" onclick="openShareUrl()">OPEN</button>
-      </div>
-
-      <button class="close-modal" onclick="closeModal()">Close</button>
+    <div class="modal-buttons">
+      <button class="copy-btn" onclick="copyUrl()">COPY URL</button>
+      <button class="open-btn" onclick="openUrl()">OPEN</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const titleInput = document.getElementById("title");
-    const noteInput = document.getElementById("note");
-    const statusText = document.getElementById("status");
+<script>
+  const editor = document.getElementById('editor');
+  const statusEl = document.getElementById('status');
+  const modal = document.getElementById('shareModal');
+  const sharedUrlEl = document.getElementById('sharedUrl');
+  const tabs = document.querySelectorAll('.tab');
 
-    const shareModal = document.getElementById("shareModal");
-    const sharedUrlElement = document.getElementById("sharedUrl");
+  let currentMode = 'notes';
+  let currentUrl = '';
 
-    let currentShareUrl = "";
+  // Tab switching
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentMode = tab.dataset.mode;
 
-    // Load saat halaman dibuka
-    window.onload = function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sharedData = urlParams.get("data");
+      const placeholders = {
+        notes: 'Write your note here...',
+        image: 'Paste image URL here...',
+        code:  'Paste your code here...',
+        html:  'Paste your HTML here...'
+      };
+      editor.placeholder = placeholders[currentMode];
+    });
+  });
 
-      // Jika membuka link share
-      if (sharedData) {
-        try {
-          const decoded = decodeURIComponent(sharedData);
-          const noteData = JSON.parse(decoded);
+  // Share content
+  function shareContent() {
+    const content = editor.value.trim();
+    if (!content) {
+      statusEl.textContent = 'Please write something first.';
+      return;
+    }
 
-          titleInput.value = noteData.title || "";
-          noteInput.value = noteData.content || "";
-
-          statusText.textContent = "Catatan dibuka dari link share.";
-        } catch (error) {
-          statusText.textContent = "Link share tidak valid.";
-        }
-      } else {
-        // Jika bukan link share, load dari localStorage
-        titleInput.value = localStorage.getItem("noteTitle") || "";
-        noteInput.value = localStorage.getItem("noteContent") || "";
-      }
+    const data = {
+      mode: currentMode,
+      content: content
     };
 
-    function saveNote() {
-      localStorage.setItem("noteTitle", titleInput.value);
-      localStorage.setItem("noteContent", noteInput.value);
+    // Encode ke base64 supaya URL lebih bersih
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
 
-      statusText.textContent = "Catatan berhasil disimpan.";
-    }
+    currentUrl = `${location.origin}${location.pathname}#data=${encoded}`;
+    sharedUrlEl.textContent = currentUrl;
+    modal.style.display = 'flex';
 
-    function clearNote() {
-      if (confirm("Yakin ingin menghapus catatan?")) {
-        titleInput.value = "";
-        noteInput.value = "";
+    statusEl.textContent = 'Content shared successfully!';
+  }
 
-        localStorage.removeItem("noteTitle");
-        localStorage.removeItem("noteContent");
+  function copyUrl() {
+    navigator.clipboard.writeText(currentUrl)
+      .then(() => alert('URL copied!'))
+      .catch(() => alert('Copy failed.'));
+  }
 
-        statusText.textContent = "Catatan dihapus.";
-      }
-    }
+  function openUrl() {
+    window.open(currentUrl, '_blank');
+  }
 
-    function downloadNote() {
-      const title = titleInput.value || "catatan";
-      const content = noteInput.value;
+  function closeModal() {
+    modal.style.display = 'none';
+  }
 
-      const blob = new Blob([content], { type: "text/plain" });
-      const link = document.createElement("a");
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeModal();
+  });
 
-      link.href = URL.createObjectURL(blob);
-      link.download = title + ".txt";
-      link.click();
+  // Load shared content saat halaman dibuka
+  window.addEventListener('load', () => {
+    if (location.hash.startsWith('#data=')) {
+      try {
+        const encoded = location.hash.replace('#data=', '');
+        const json = decodeURIComponent(escape(atob(encoded)));
+        const data = JSON.parse(json);
 
-      URL.revokeObjectURL(link.href);
-    }
+        editor.value = data.content || '';
 
-    function shareNote() {
-      const noteData = {
-        title: titleInput.value,
-        content: noteInput.value
-      };
-
-      const encodedData = encodeURIComponent(JSON.stringify(noteData));
-
-      currentShareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
-
-      sharedUrlElement.textContent = currentShareUrl;
-      shareModal.style.display = "flex";
-    }
-
-    function copyShareUrl() {
-      navigator.clipboard.writeText(currentShareUrl)
-        .then(() => {
-          alert("URL berhasil dicopy!");
-        })
-        .catch(() => {
-          alert("Gagal copy URL.");
+        // Aktifkan tab sesuai mode
+        tabs.forEach(t => {
+          t.classList.toggle('active', t.dataset.mode === data.mode);
         });
-    }
+        currentMode = data.mode || 'notes';
 
-    function openShareUrl() {
-      window.open(currentShareUrl, "_blank");
-    }
-
-    function closeModal() {
-      shareModal.style.display = "none";
-    }
-
-    // Klik area luar modal untuk menutup
-    shareModal.addEventListener("click", function(e) {
-      if (e.target === shareModal) {
-        closeModal();
+        statusEl.textContent = 'Shared content loaded.';
+      } catch (e) {
+        statusEl.textContent = 'Invalid share link.';
       }
-    });
-
-    // Auto save saat mengetik
-    noteInput.addEventListener("input", saveNote);
-    titleInput.addEventListener("input", saveNote);
-  </script>
+    }
+  });
+</script>
 
 </body>
 </html>
